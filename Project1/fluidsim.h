@@ -6,6 +6,8 @@
 #include "pcgsolver/sparse_matrix.h"
 #include "pcgsolver/pcg_solver.h"
 
+#include "particles.h"
+
 #include <vector>
 
 class FluidSim {
@@ -29,6 +31,9 @@ public:
    
    //Tracer particles
    std::vector<Vec2f> particles;
+
+   //FLIP particles
+   Particles flip_particles;
    
    //Static geometry representation
    Array2f nodal_solid_phi;

@@ -5,6 +5,8 @@
 #include "pcgsolver/sparse_matrix.h"
 #include "pcgsolver/pcg_solver.h"
 #include "vorticity.h"
+#include "particles.h"
+
 
 #include <iostream>
 using namespace std;
@@ -23,10 +25,16 @@ void FluidSim::initialize(float width, int ni_, int nj_) {
    nodal_solid_phi.resize(ni+1,nj+1);
    valid.resize(ni+1, nj+1);
    old_valid.resize(ni+1, nj+1);
-   gamma = gamma_init(dx, ni, nj);
-   vor = gamma;
-   u = vor_inversion_u(dx, ni, nj, vor);
-   v = vor_inversion_v(dx, ni, nj, vor);
+
+   //Semi Lagrangian Method
+   //gamma = gamma_init(dx, ni, nj);
+   //vor = gamma;
+   //u = vor_inversion_u(dx, ni, nj, vor);
+   //v = vor_inversion_v(dx, ni, nj, vor);
+
+   //FLIP Method
+   flip_particles.initialize(width, ni, nj);
+   flip_particles.transfer_to_grid(width, ni, nj, u, v);
    
 }
 
@@ -52,8 +60,6 @@ void FluidSim::advance(float dt) {
    // add_force(dt);
    project(dt);
    vor = curl_2D(u, v, ni, nj, dx);
-   //u = vor_inversion_u(dx, ni, nj, vor);
-   //v = vor_inversion_v(dx, ni, nj, vor);
     
    //Pressure projection only produces valid velocities in faces with non-zero associated face area.
    //Because the advection step may interpolate from these invalid faces, 

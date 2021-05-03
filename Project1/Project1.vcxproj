@@ -151,6 +151,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="flip-advection.h" />
+    <ClInclude Include="particles.h" />
     <ClInclude Include="vorticity.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
