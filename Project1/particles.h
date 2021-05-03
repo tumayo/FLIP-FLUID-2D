@@ -9,6 +9,7 @@
 
 using namespace std;
 
+//FLIP particles
 class Particles {
 
 public:
