@@ -217,7 +217,8 @@ void drag(int x, int y)
 
 void timer(int junk)
 {
-    sim.advance(timestep);
+    //sim.advance(timestep);
+    sim.pic_adv_advance(timestep);
 
 
 #ifdef MAKE_MOVIE
