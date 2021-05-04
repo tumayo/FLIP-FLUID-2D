@@ -16,6 +16,7 @@ public:
    void initialize(float width, int ni_, int nj_);
    void set_boundary(float (*phi)(const Vec2f&));
    void advance(float dt);
+   void pic_adv_advance(float dt);
 
    //Grid dimensions
    int ni,nj;

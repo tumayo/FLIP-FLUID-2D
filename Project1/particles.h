@@ -41,6 +41,11 @@ public:
 	void transfer_to_grid(float width, int ni, int nj, Array2f& grid_u, Array2f& grid_v) {
 		int i, j;
 		float fx, fy;
+
+		grid_u.resize(ni, nj);
+		grid_v.resize(ni, nj);
+		grid_u.set_zero();
+		grid_v.set_zero();
 		float dx = width / ni;
 
 		sum.resize(ni, nj);
@@ -75,77 +80,27 @@ public:
 			}
 		}
 	}
-	void move_particles_in_grid(float dt, Array2f grid_u, Array2f grid_v, float xmax, float ymax, float dx) {
+
+	void move_particles_in_grid(float dt)
+	{
 		Vec2f midx, gu;
+		float xmin = 1.001 * grid.h, xmax = grid.lx - 1.001 * grid.h;
+		float ymin = 1.001 * grid.h, ymax = grid.ly - 1.001 * grid.h;
 		for (int p_i = 0; p_i < sqrt(num_particles); ++p_i) {
 			for (int p_j = 0; p_j < sqrt(num_particles); ++p_j) {
 				// first stage of Runge-Kutta 2 (do a half Euler step)
-				float x_pos = x(p_i, p_j) / dx;
-				float y_pos = y(p_i, p_j) / dx;
-				int v00 = floor(x_pos); int v10 = ceil(x_pos);
-				int v01 = floor(y_pos); int v11 = ceil(y_pos);
-				float fx = x_pos - v00;
-				if (fx > v10 - x_pos)
-					fx = v10 - x_pos;
-				float fy = y_pos - v01;
-				if (fy > v11 - y_pos)
-					fy = v11 - y_pos;
-				gu[0] = bilerp(grid_u(v00, v01), grid_u(v00, v11), grid_u(v10, v01), grid_u(v10, v11), fx, fy);
-				gu[1] = bilerp(grid_v(v00, v01), grid_v(v00, v11), grid_v(v10, v01), grid_v(v10, v11), fx, fy);
-
-				midx[0] = x_pos + 0.5 * dt * gu[0];
-				midx[1] = y_pos + 0.5 * dt * gu[1];
-
-				midx[0] = clamp(midx[0], 0.0f, xmax);
-				midx[1] = clamp(midx[1], 0.0f, ymax);
-
+				grid.bilerp_uv(x[p][0], x[p][1], gu[0], gu[1]);
+				midx = x[p] + 0.5 * dt * gu;
+				clamp(midx[0], xmin, xmax);
+				clamp(midx[1], ymin, ymax);
 				// second stage of Runge-Kutta 2
-				v00 = floor(midx[0]); v10 = ceil(midx[0]);
-				v01 = floor(midx[1]); v11 = ceil(midx[1]);
-
-				fx = midx[0] - v00;
-				if (fx > v10 - midx[0])
-					fx = v10 - midx[0];
-				fy = midx[1] - v01;
-				if (fy > v11 - midx[1])
-					fy = v11 - midx[1];
-
-				gu[0] = bilerp(grid_u(v00, v01), grid_u(v00, v11), grid_u(v10, v01), grid_u(v10, v11), fx, fy);
-				gu[1] = bilerp(grid_v(v00, v01), grid_v(v00, v11), grid_v(v10, v01), grid_v(v10, v11), fx, fy);
-
-				x(p_i, p_j) = midx[0] * dx + 0.5 * dt * gu[0];
-				y(p_i, p_j) = midx[1] * dx + 0.5 * dt * gu[1];
-
-				x(p_i, p_j) = clamp(x(p_i, p_j), 0.0f, xmax);
-				y(p_i, p_j) = clamp(y(p_i, p_j), 0.0f, ymax);
-
+				grid.bilerp_uv(midx[0], midx[1], gu[0], gu[1]);
+				x[p] += dt * gu;
+				clamp(x[p][0], xmin, xmax);
+				clamp(x[p][1], ymin, ymax);
 			}
 		}
 	}
-	void update_from_grid(float dx, float ni, float nj, Array2f grid_u, Array2f grid_v) {
-
-		for (int p_i = 0; p_i < sqrt(num_particles); ++p_i) {
-			for (int p_j = 0; p_j < sqrt(num_particles); ++p_j) {
-
-				float x_pos = x(p_i, p_j) / dx;
-				float y_pos = y(p_i, p_j) / dx;
-				int v00 = floor(x_pos); int v10 = ceil(x_pos);
-				int v01 = floor(y_pos); int v11 = ceil(y_pos);
-				float fx = x_pos - v00;
-				if (fx > v10 - x_pos)
-					fx = v10 - x_pos;
-				float fy = y_pos - v01;
-				if (fy > v11 - y_pos)
-					fy = v11 - y_pos;
-
-				//PIC
-				u(p_i, p_j) = bilerp(grid_u(v00, v01), grid_u(v00, v11), grid_u(v10, v01), grid_u(v10, v11), fx, fy);
-				v(p_i, p_j) = bilerp(grid_v(v00, v01), grid_v(v00, v11), grid_v(v10, v01), grid_v(v10, v11), fx, fy);
-			}
-		}
-	}
-
-
 
 private:
 	void accumulate(Array2f &accum, float q, int i, int j, float fx, float fy) {
