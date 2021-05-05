@@ -33,6 +33,9 @@ void FluidSim::initialize(float width, int ni_, int nj_) {
    //v = vor_inversion_v(dx, ni, nj, vor);
 
    //FLIP Method
+   du.resize(ni + 1, nj); du.set_zero();
+   dv.resize(ni, nj + 1); dv.set_zero();
+
    flip_particles.initialize(width, ni, nj);
    flip_particles.transfer_to_grid(width, ni, nj, u, v);
    
@@ -353,7 +356,7 @@ void extrapolate(Array2f& grid, const Array2f& grid_weight, Array2c& valid, Arra
 }
 
 //Tumay
-void FluidSim::pic_adv_advance(float dt) {
+void FluidSim::flip_adv_advance(float dt) {
 
     //Passively advect particles
     advect_particles(dt);
@@ -370,7 +373,27 @@ void FluidSim::pic_adv_advance(float dt) {
     //that of the object.
     constrain_velocity();
 
-    flip_particles.update_from_grid(dx, ni, nj, u, v);
+    flip_particles.update_from_grid(dx, ni, nj, u, v, du, dv);
 
+}
+
+// Save Velocities for FLIP
+void FluidSim::save_velocities(void) {
+    for (int i = 0; i < ni; i++) {
+        for (int j = 0; j < nj; j++) {
+            du(i, j) = u(i, j);
+            dv(i, j) = v(i, j);
+        }
+    }
+}
+
+// Update Velocities for FLIP
+void FluidSim::get_velocity_update(void) {
+    for (int i = 0; i < ni; i++) {
+        for (int j = 0; j < nj; j++) {
+            du(i, j) = u(i, j) - du(i, j);
+            dv(i, j) = v(i, j) - dv(i, j);
+        }
+    }
 }
 

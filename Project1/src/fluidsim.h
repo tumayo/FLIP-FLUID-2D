@@ -16,7 +16,7 @@ public:
    void initialize(float width, int ni_, int nj_);
    void set_boundary(float (*phi)(const Vec2f&));
    void advance(float dt);
-   void pic_adv_advance(float dt);
+   void flip_adv_advance(float dt);
 
    //Grid dimensions
    int ni,nj;
@@ -35,6 +35,10 @@ public:
 
    //FLIP particles
    Particles flip_particles;
+   Array2f du, dv; // saved velocities and differences for particle update
+
+   void save_velocities();
+   void get_velocity_update();
    
    //Static geometry representation
    Array2f nodal_solid_phi;

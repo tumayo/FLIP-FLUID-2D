@@ -122,7 +122,8 @@ public:
 			}
 		}
 	}
-	void update_from_grid(float dx, float ni, float nj, Array2f grid_u, Array2f grid_v) {
+	void update_from_grid(float dx, float ni, float nj, Array2f grid_u, Array2f grid_v, 
+						  Array2f grid_du, Array2f grid_dv) {
 
 		for (int p_i = 0; p_i < sqrt(num_particles); ++p_i) {
 			for (int p_j = 0; p_j < sqrt(num_particles); ++p_j) {
@@ -138,9 +139,13 @@ public:
 				if (fy > v11 - y_pos)
 					fy = v11 - y_pos;
 
+				//FLIP
+				u(p_i, p_j) += bilerp(grid_du(v00, v01), grid_du(v00, v11), grid_du(v10, v01), grid_du(v10, v11), fx, fy);
+				v(p_i, p_j) += bilerp(grid_dv(v00, v01), grid_dv(v00, v11), grid_dv(v10, v01), grid_dv(v10, v11), fx, fy);
+
 				//PIC
-				u(p_i, p_j) = bilerp(grid_u(v00, v01), grid_u(v00, v11), grid_u(v10, v01), grid_u(v10, v11), fx, fy);
-				v(p_i, p_j) = bilerp(grid_v(v00, v01), grid_v(v00, v11), grid_v(v10, v01), grid_v(v10, v11), fx, fy);
+				//u(p_i, p_j) = bilerp(grid_u(v00, v01), grid_u(v00, v11), grid_u(v10, v01), grid_u(v10, v11), fx, fy);
+				//v(p_i, p_j) = bilerp(grid_v(v00, v01), grid_v(v00, v11), grid_v(v10, v01), grid_v(v10, v11), fx, fy);
 			}
 		}
 	}

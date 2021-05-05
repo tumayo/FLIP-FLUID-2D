@@ -21,9 +21,8 @@
 
 using namespace std;
 
-
 //Try changing the grid resolution
-int grid_resolution = 30;
+int grid_resolution = 50;
 float timestep = 0.001f;
 int pause_btw_frames_in_ms = 10;
 char img_file_path[]{ "C:/output/" };
@@ -35,6 +34,7 @@ bool draw_velocities = true;
 bool draw_boundaries = true;
 
 float grid_width = 1;
+int start = 0;
 
 FluidSim sim;
 
@@ -47,6 +47,7 @@ void display();
 void mouse(int button, int state, int x, int y);
 void drag(int x, int y);
 void timer(int junk);
+void key_func(unsigned char key, int x, int y);
 
 
 //Boundary definition - several circles in a circular domain.
@@ -105,6 +106,7 @@ int main(int argc, char** argv)
     glClearColor(1, 1, 1, 1);
 
     glutTimerFunc(1000, timer, 0);
+    glutKeyboardFunc(key_func);
 
     //Set up the simulation
     sim.initialize(grid_width, grid_resolution, grid_resolution);
@@ -215,27 +217,39 @@ void drag(int x, int y)
     //oldmousetime=newmousetime;
 }
 
+//Tumay 
+void key_func(unsigned char key, int x, int y) {
+
+    switch (key) { 
+    case 's': start = !start; 
+        glutTimerFunc(pause_btw_frames_in_ms, timer, 0);
+        break;
+    }
+}
+
 void timer(int junk)
 {
-    //sim.advance(timestep);
-    sim.pic_adv_advance(timestep);
+    if (start) {
+        //sim.advance(timestep);
+        sim.flip_adv_advance(timestep);
 
 
 #ifdef MAKE_MOVIE
-    static int frame = 0;
-    frame++;
+        static int frame = 0;
+        frame++;
 
-    char* sgifileformat;
-    sgifileformat = new char[strlen(img_file_path) + 50];
+        char* sgifileformat;
+        sgifileformat = new char[strlen(img_file_path) + 50];
 
-    sprintf(sgifileformat, "%s/screenshot%%04d.sgi", img_file_path);
-    Gluvi::sgi_screenshot(sgifileformat, frame);
+        sprintf(sgifileformat, "%s/screenshot%%04d.sgi", img_file_path);
+        Gluvi::sgi_screenshot(sgifileformat, frame);
 
-    delete[] sgifileformat;
+        delete[] sgifileformat;
 #endif
 
-    glutPostRedisplay();
-    glutTimerFunc(pause_btw_frames_in_ms, timer, 0);
+        glutPostRedisplay();
+        glutTimerFunc(pause_btw_frames_in_ms, timer, 0);
+    }
 
 }
 
