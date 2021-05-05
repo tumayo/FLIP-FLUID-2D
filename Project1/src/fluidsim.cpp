@@ -361,9 +361,6 @@ void FluidSim::pic_adv_advance(float dt) {
     flip_particles.move_particles_in_grid(0.2f * dt, u, v, 1, 1, dx);
     flip_particles.transfer_to_grid(dx, ni, nj, u, v);
 
-    //Advance the velocity
-    advect(dt);
-
     // add_force(dt);
     project(dt);
     extrapolate(u, u_weights, valid, old_valid);
