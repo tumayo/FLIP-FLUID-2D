@@ -361,7 +361,7 @@ void FluidSim::flip_adv_advance(float dt) {
     //Passively advect particles
     advect_particles(dt);
 
-    flip_particles.move_particles_in_grid(0.2f * dt, u, v, 1, 1, dx);
+    flip_particles.move_particles_in_grid(dt, u, v, 1, 1, dx);
     flip_particles.transfer_to_grid(dx, ni, nj, u, v);
 
     // add_force(dt);

@@ -170,7 +170,7 @@ void display(void)
        }
     }*/
 
-    draw_velocity();
+    //draw_velocity();
     /*glPointSize(5.0);
     glBegin(GL_POINTS);
     for (int i = 0; i <= sim.ni; i++) {
