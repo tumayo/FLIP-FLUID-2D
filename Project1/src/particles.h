@@ -113,8 +113,8 @@ public:
 				gu[0] = bilerp(grid_u(v00, v01), grid_u(v00, v11), grid_u(v10, v01), grid_u(v10, v11), fx, fy);
 				gu[1] = bilerp(grid_v(v00, v01), grid_v(v00, v11), grid_v(v10, v01), grid_v(v10, v11), fx, fy);
 
-				x(p_i, p_j) = midx[0] * dx + 0.5 * dt * gu[0];
-				y(p_i, p_j) = midx[1] * dx + 0.5 * dt * gu[1];
+				x(p_i, p_j) = midx[0] * dx + dt * gu[0];
+				y(p_i, p_j) = midx[1] * dx + dt * gu[1];
 
 				x(p_i, p_j) = clamp(x(p_i, p_j), 0.0f, xmax);
 				y(p_i, p_j) = clamp(y(p_i, p_j), 0.0f, ymax);
