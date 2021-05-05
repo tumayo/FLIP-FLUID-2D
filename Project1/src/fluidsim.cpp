@@ -363,6 +363,7 @@ void FluidSim::flip_adv_advance(float dt) {
 
     flip_particles.move_particles_in_grid(dt, u, v, 1, 1, dx);
     flip_particles.transfer_to_grid(dx, ni, nj, u, v);
+    save_velocities();
 
     // add_force(dt);
     project(dt);
@@ -373,6 +374,7 @@ void FluidSim::flip_adv_advance(float dt) {
     //that of the object.
     constrain_velocity();
 
+    get_velocity_update();
     flip_particles.update_from_grid(dx, ni, nj, u, v, du, dv);
 
 }
