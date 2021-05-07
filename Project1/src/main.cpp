@@ -176,7 +176,8 @@ void display(void)
 
     if (draw_boundaries) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        draw_circle2d(c0, rad0, 50);
+        //Circle Boundary
+        //draw_circle2d(c0, rad0, 50);
         /*draw_circle2d(c1, rad1, 50);
         draw_circle2d(c2, rad2, 50);
         draw_circle2d(c3, rad3, 50);
@@ -198,7 +199,7 @@ void display(void)
           //cout << "Vel x: " << sim.get_velocity(pos)[0] << "Vel y:" << sim.get_velocity(pos)[1] << endl;
        }
     }*/
-    draw_nodal_solid_phi();
+   
     //draw_velocity();
     /*glPointSize(5.0);
     glBegin(GL_POINTS);
@@ -226,6 +227,7 @@ void display(void)
 
     //Bunny Boundary
     draw_BC();
+    draw_nodal_solid_phi();
 }
 
 void mouse(int button, int state, int x, int y)
