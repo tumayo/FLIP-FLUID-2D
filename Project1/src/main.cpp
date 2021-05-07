@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <cfloat>
+#include <vector>
 
 #include "gluvi.h"
 #include "fluidsim.h"
@@ -15,9 +16,10 @@
 #include "gluvi.cpp"
 #include "openglutils.cpp"
 
+#include "makelevelset2.h"
+
 //Comment this to disable frame dumping
 #define MAKE_MOVIE
-
 
 using namespace std;
 
@@ -49,6 +51,15 @@ void drag(int x, int y);
 void timer(int junk);
 void key_func(unsigned char key, int x, int y);
 
+//Tumay -- Bunny Boundary Construct
+const int num_points = 60; //# of vertices in the bunny boundary
+float temp_BC[num_points * 2] = {};
+vector<Vec2f> BC_vertices(num_points, 0); //list of vertices in the bunny boundary
+vector<Vec2ui> BC_edges(num_points, 0); //list of edges in the bunny boundary
+
+void BC_construct(void);
+void draw_BC();
+
 
 //Boundary definition - several circles in a circular domain.
 
@@ -68,7 +79,7 @@ float boundary_phi(const Vec2f& position) {
     return phi0;
 }
 
-//Draw velocity for each particle -- Tumay
+//Tumay -- Draw velocity for each particle
 void draw_velocity() {
     for (int i = 0; i < sim.particles.size(); ++i) {
         Vec2f pos = sim.particles[i];
@@ -91,7 +102,6 @@ void draw_velocity() {
 }
 
 
-
 //Main testing code
 //-------------
 int main(int argc, char** argv)
@@ -110,7 +120,19 @@ int main(int argc, char** argv)
 
     //Set up the simulation
     sim.initialize(grid_width, grid_resolution, grid_resolution);
+    //Existing Circle Boundary
     sim.set_boundary(boundary_phi);
+
+    //Tumay -- Bunny Boundary
+    BC_construct();
+    Vec2f origin = Vec2f(0, -0.5);//???
+    Array2f phi;
+    //phi.resize(sim.ni+1, sim.nj+1); phi.set_zero();
+    //make_level_set2(BC_edges, BC_vertices, origin, sim.dx, sim.ni, sim.nj, phi);
+    /*for (int i = 0; i < sim.ni; i++)
+        for (int j = 0; j < sim.nj; j++)
+            cout << phi(i, j) << endl;*/
+    //sim.nodal_solid_phi = phi;
 
     /*for(int i = 0; i < sqr(grid_resolution); ++i) {
        float x = randhashf(i*2, 0,1);
@@ -129,7 +151,6 @@ int main(int argc, char** argv)
             }
         }
     }
-    //sim.advance(timestep);
     Gluvi::run();
 
     return 0;
@@ -138,7 +159,6 @@ int main(int argc, char** argv)
 
 void display(void)
 {
-
     if (draw_grid) {
         glColor3f(0, 0, 0);
         glLineWidth(1);
@@ -195,6 +215,8 @@ void display(void)
     }
     glEnd();*/
 
+    //Bunny Boundary
+    draw_BC();
 }
 
 void mouse(int button, int state, int x, int y)
@@ -233,7 +255,6 @@ void timer(int junk)
         //sim.advance(timestep);
         sim.flip_adv_advance(timestep);
 
-
 #ifdef MAKE_MOVIE
         static int frame = 0;
         frame++;
@@ -251,6 +272,40 @@ void timer(int junk)
         glutTimerFunc(pause_btw_frames_in_ms, timer, 0);
     }
 
+}
+
+//Tumay -- Construct Bunny Boundary
+static void BC_construct(void) {
+    std::ifstream ifs("./figure_bunny.txt");
+    std::string str;
+    float a;
+    int count = 0;
+    while (getline(ifs, str)) {
+        a = stof(str);
+        temp_BC[count] = a;
+        count += 1;
+    }
+    for (int i = 0; i < num_points; i++) {
+        BC_vertices[i] = Vec2f(temp_BC[2 * i], temp_BC[2 * i + 1]);
+        if (i != num_points - 1) {
+            BC_edges[i] = Vec2ui(i, i + 1);
+        }
+        else {
+            BC_edges[i] = Vec2ui(i, 0);
+        }
+    }
+}
+
+static void draw_BC(void)
+{
+    glLineWidth(5.0);
+    glBegin(GL_LINES);
+    for (int i = 0; i < num_points; i++) {
+        glColor3f(1.0, 1.0, 0.0);
+        glVertex2f(BC_vertices[i][0], BC_vertices[i][1]);
+        glVertex2f(BC_vertices[(i + 1) % num_points][0], BC_vertices[(i + 1) % num_points][1]);
+    }
+    glEnd();
 }
 
 

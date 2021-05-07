@@ -49,7 +49,7 @@ public:
 			for (int p_j = 0; p_j < sqrt(num_particles); ++p_j) {
 
 				get_barycentric(x(p_i, p_j) / dx, i, fx, 0, ni);
-				get_barycentric(y(p_i, p_j) / dx - 0.5f, j, fy, 0, ni);
+				get_barycentric(y(p_i, p_j) / dx - 0.5f, j, fy, 0, nj);
 				accumulate(grid_u, u(p_i, p_j), i, j, fx, fy);
 			}
 		}
@@ -64,7 +64,7 @@ public:
 		for (int p_i = 0; p_i < sqrt(num_particles); ++p_i) {
 			for (int p_j = 0; p_j < sqrt(num_particles); ++p_j) {
 				get_barycentric(x(p_i, p_j) / dx - 0.5f, i, fx, 0, ni);
-				get_barycentric(y(p_i, p_j) / dx, j, fy, 0, ni);
+				get_barycentric(y(p_i, p_j) / dx, j, fy, 0, nj);
 				accumulate(grid_v, v(p_i, p_j), i, j, fx, fy);
 			}
 		}
@@ -75,50 +75,39 @@ public:
 			}
 		}
 	}
-	void move_particles_in_grid(float dt, Array2f grid_u, Array2f grid_v, float xmax, float ymax, float dx) {
+	void move_particles_in_grid(float dt, Array2f grid_u, Array2f grid_v, float xmax, float ymax, float dx, int ni, int nj) {
 		Vec2f midx, gu;
 		for (int p_i = 0; p_i < sqrt(num_particles); ++p_i) {
 			for (int p_j = 0; p_j < sqrt(num_particles); ++p_j) {
 				// first stage of Runge-Kutta 2 (do a half Euler step)
 				float x_pos = x(p_i, p_j) / dx;
-				float y_pos = y(p_i, p_j) / dx;
-				int v00 = floor(x_pos); int v10 = ceil(x_pos);
-				int v01 = floor(y_pos); int v11 = ceil(y_pos);
-				float fx = x_pos - v00;
-				if (fx > v10 - x_pos)
-					fx = v10 - x_pos;
-				float fy = y_pos - v01;
-				if (fy > v11 - y_pos)
-					fy = v11 - y_pos;
-				gu[0] = bilerp(grid_u(v00, v01), grid_u(v00, v11), grid_u(v10, v01), grid_u(v10, v11), fx, fy);
-				gu[1] = bilerp(grid_v(v00, v01), grid_v(v00, v11), grid_v(v10, v01), grid_v(v10, v11), fx, fy);
+				float y_pos = y(p_i, p_j) / dx - 0.5;
+				gu[0] = interpolate_value(Vec2f(x_pos, y_pos), grid_u, ni, nj);
 
-				midx[0] = x_pos + 0.5 * dt * gu[0];
-				midx[1] = y_pos + 0.5 * dt * gu[1];
+				x_pos = x(p_i, p_j) / dx - 0.5;
+				y_pos = y(p_i, p_j) / dx;
+				gu[1] = interpolate_value(Vec2f(x_pos, y_pos), grid_v, ni, nj);
+				
+				midx[0] = x(p_i, p_j) + 0.5 * dt * gu[0];
+				midx[1] = y(p_i, p_j) + 0.5 * dt * gu[1];
 
 				midx[0] = clamp(midx[0], 0.0f, xmax);
 				midx[1] = clamp(midx[1], 0.0f, ymax);
 
 				// second stage of Runge-Kutta 2
-				v00 = floor(midx[0]); v10 = ceil(midx[0]);
-				v01 = floor(midx[1]); v11 = ceil(midx[1]);
+				x_pos = midx[0] / dx;
+				y_pos = midx[1] / dx - 0.5;
+				gu[0] = interpolate_value(Vec2f(x_pos, y_pos), grid_u, ni, nj);
 
-				fx = midx[0] - v00;
-				if (fx > v10 - midx[0])
-					fx = v10 - midx[0];
-				fy = midx[1] - v01;
-				if (fy > v11 - midx[1])
-					fy = v11 - midx[1];
+				x_pos = midx[0] / dx - 0.5;
+				y_pos = midx[1] / dx;
+				gu[1] = interpolate_value(Vec2f(x_pos, y_pos), grid_v, ni, nj);
 
-				gu[0] = bilerp(grid_u(v00, v01), grid_u(v00, v11), grid_u(v10, v01), grid_u(v10, v11), fx, fy);
-				gu[1] = bilerp(grid_v(v00, v01), grid_v(v00, v11), grid_v(v10, v01), grid_v(v10, v11), fx, fy);
-
-				x(p_i, p_j) = midx[0] * dx + dt * gu[0];
-				y(p_i, p_j) = midx[1] * dx + dt * gu[1];
+				x(p_i, p_j) += dt * gu[0];
+				y(p_i, p_j) += dt * gu[1];
 
 				x(p_i, p_j) = clamp(x(p_i, p_j), 0.0f, xmax);
 				y(p_i, p_j) = clamp(y(p_i, p_j), 0.0f, ymax);
-
 			}
 		}
 	}
@@ -129,20 +118,28 @@ public:
 			for (int p_j = 0; p_j < sqrt(num_particles); ++p_j) {
 
 				float x_pos = x(p_i, p_j) / dx;
-				float y_pos = y(p_i, p_j) / dx;
-				int v00 = floor(x_pos); int v10 = ceil(x_pos);
+				float y_pos = y(p_i, p_j) / dx - 0.5;
+				u(p_i, p_j) += interpolate_value(Vec2f(x_pos, y_pos), grid_du, ni, nj);
+
+				x_pos = x(p_i, p_j) / dx - 0.5;
+				y_pos = y(p_i, p_j) / dx;
+				v(p_i, p_j) += interpolate_value(Vec2f(x_pos, y_pos), grid_dv, ni, nj);
+
+				// What happens inside interpolate_value -> get_barycentric & bilerp
+				
+				/*int v00 = floor(x_pos); int v10 = ceil(x_pos);
 				int v01 = floor(y_pos); int v11 = ceil(y_pos);
 				float fx = x_pos - v00;
 				if (fx > v10 - x_pos)
 					fx = v10 - x_pos;
 				float fy = y_pos - v01;
 				if (fy > v11 - y_pos)
-					fy = v11 - y_pos;
+					fy = v11 - y_pos;*/
 
 				//FLIP
-				u(p_i, p_j) += bilerp(grid_du(v00, v01), grid_du(v00, v11), grid_du(v10, v01), grid_du(v10, v11), fx, fy);
-				v(p_i, p_j) += bilerp(grid_dv(v00, v01), grid_dv(v00, v11), grid_dv(v10, v01), grid_dv(v10, v11), fx, fy);
-
+				//u(p_i, p_j) += bilerp(grid_du(v00, v01), grid_du(v00, v11), grid_du(v10, v01), grid_du(v10, v11), fx, fy);
+				//v(p_i, p_j) += bilerp(grid_dv(v00, v01), grid_dv(v00, v11), grid_dv(v10, v01), grid_dv(v10, v11), fx, fy);
+				
 				//PIC
 				//u(p_i, p_j) = bilerp(grid_u(v00, v01), grid_u(v00, v11), grid_u(v10, v01), grid_u(v10, v11), fx, fy);
 				//v(p_i, p_j) = bilerp(grid_v(v00, v01), grid_v(v00, v11), grid_v(v10, v01), grid_v(v10, v11), fx, fy);
@@ -172,6 +169,18 @@ private:
 		accum(i + 1, j + 1) += weight * q;
 		sum(i + 1, j + 1) += weight;
 		
+	}
+	Vec2f interpolate_value(const Vec2f &point, const Array2f &grid, int ni, int nj) {
+		int i, j;
+		float fx, fy;
+
+		get_barycentric(point[0], i, fx, 0, ni);
+		get_barycentric(point[1], j, fy, 0, nj);
+
+		return bilerp(
+			grid(i, j), grid(i + 1, j),
+			grid(i, j + 1), grid(i + 1, j + 1),
+			fx, fy);
 	}
 };
 
