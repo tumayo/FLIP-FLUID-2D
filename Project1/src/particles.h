@@ -147,8 +147,6 @@ public:
 		}
 	}
 
-
-
 private:
 	void accumulate(Array2f &accum, float q, int i, int j, float fx, float fy) {
 		
@@ -170,7 +168,7 @@ private:
 		sum(i + 1, j + 1) += weight;
 		
 	}
-	Vec2f interpolate_value(const Vec2f &point, const Array2f &grid, int ni, int nj) {
+	float interpolate_value(const Vec2f &point, const Array2f &grid, int ni, int nj) {
 		int i, j;
 		float fx, fy;
 
