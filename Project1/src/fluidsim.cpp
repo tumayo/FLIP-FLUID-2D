@@ -55,12 +55,15 @@ void FluidSim::set_boundary(float (*phi)(const Vec2f&)) {
 //The main fluid simulation step
 void FluidSim::advance(float dt) {
    
+   std::cout << "Advect\n";
    //Passively advect particles
    advect_particles(dt);
 
    //Advance the velocity
    advect(dt);
-   // add_force(dt);
+   add_force(dt);
+   
+   std::cout << "Project\n";
    project(dt);
    vor = curl_2D(u, v, ni, nj, dx);
     

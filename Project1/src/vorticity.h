@@ -6,8 +6,8 @@
 #include "array2.h"
 
 using namespace std;
-const float PI = 3.14159265358979;
-const float SIGMA = 0.0001;
+const float PI = 3.14159265358979f;
+const float SIGMA = 0.0001f;
 
 // Function definitions
 
@@ -19,8 +19,8 @@ Array2f gamma_init(float dx, int ni, int nj) {
 		for (int j = 0; j < nj; j++) {
 			float x = i * dx;
 			float y = j * dx;
-			if (0.4 <= x && x <= 0.6 && 0.4 <= y && y <= 0.6) {
-				gamma(i, j) = 2.0 * (y - x);
+			if (0.4f <= x && x <= 0.6f && 0.4f <= y && y <= 0.6f) {
+				gamma(i, j) = 2.0f * (y - x);
 			}
 			else
 				gamma(i, j) = 0;
