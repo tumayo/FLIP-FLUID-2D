@@ -148,8 +148,6 @@ public:
 		}
 	}
 
-
-
 private:
 	void accumulate(Array2f &accum, float q, int i, int j, float fx, float fy) {
 		
@@ -171,18 +169,7 @@ private:
 		sum(i + 1, j + 1) += weight;
 		
 	}
-	/*Vec2f interpolate_value(const Vec2f &point, const Array2f &grid, int ni, int nj) {
-		int i, j;
-		float fx, fy;
 
-		get_barycentric(point[0], i, fx, 0, ni);
-		get_barycentric(point[1], j, fy, 0, nj);
-
-		return bilerp(
-			grid(i, j), grid(i + 1, j),
-			grid(i, j + 1), grid(i + 1, j + 1),
-			fx, fy);
-	}*/
 };
 
 #endif

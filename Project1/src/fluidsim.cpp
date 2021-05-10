@@ -220,7 +220,7 @@ float fraction_inside(float phi_left, float phi_right) {
 
 //Compute finite-volume style face-weights for fluid from nodal signed distances
 void FluidSim::compute_weights() {
-    cout << nodal_solid_phi(0, 50) << endl;
+
    for(int j = 0; j < u_weights.nj; ++j) for(int i = 0; i < u_weights.ni; ++i) {
       u_weights(i,j) = 1 - fraction_inside(nodal_solid_phi(i,j+1), nodal_solid_phi(i,j));
    }
@@ -245,7 +245,7 @@ void FluidSim::solve_pressure(float dt) {
       matrix.resize(system_size);
    }
    matrix.zero();
-
+   
    //Build the linear system for pressure
    for(int j = 1; j < nj-1; ++j) {
       for(int i = 1; i < ni-1; ++i) {

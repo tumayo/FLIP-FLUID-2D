@@ -101,6 +101,20 @@ void draw_velocity() {
     }
 }
 
+void draw_nodal_solid_phi() {
+    for (int i = 0; i < sim.ni; i++) {
+        for (int j = 0; j < sim.nj; j++) {
+            glBegin(GL_POINTS);
+            if (sim.nodal_solid_phi(i, j) < 0)
+                glColor3f(1, 1, 0);
+            else
+                glColor3f(1, 0, 0);
+            glVertex2f(i*sim.dx, j*sim.dx);
+            glEnd();
+        }
+    }
+}
+
 
 //Main testing code
 //-------------
@@ -121,19 +135,13 @@ int main(int argc, char** argv)
     //Set up the simulation
     sim.initialize(grid_width, grid_resolution, grid_resolution);
     //Existing Circle Boundary
-    sim.set_boundary(boundary_phi);
+    //sim.set_boundary(boundary_phi);
 
     //Tumay -- Bunny Boundary
     BC_construct();
-    Vec2f origin = Vec2f(0, -0.5);//???
-    Array2f phi;
-    //phi.resize(sim.ni+1, sim.nj+1); phi.set_zero();
-    //make_level_set2(BC_edges, BC_vertices, origin, sim.dx, sim.ni, sim.nj, phi);
-    /*for (int i = 0; i < sim.ni; i++)
-        for (int j = 0; j < sim.nj; j++)
-            cout << phi(i, j) << endl;*/
-    //sim.nodal_solid_phi = phi;
-
+    Vec2f origin = Vec2f(0.0, 0.0);
+    make_level_set2(BC_edges, BC_vertices, origin, sim.dx, sim.ni+1 , sim.nj+1, sim.nodal_solid_phi);
+   
     /*for(int i = 0; i < sqr(grid_resolution); ++i) {
        float x = randhashf(i*2, 0,1);
        float y = randhashf(i*2+1, 0,1);
@@ -141,12 +149,13 @@ int main(int argc, char** argv)
        if(boundary_phi(pt) > 0)
           sim.add_particle(pt);
     }*/
+
     float dx = grid_width / (float)grid_resolution;
     for (int i = 0; i < grid_resolution + 1; i++) {
         for (int j = 0; j < grid_resolution + 1; j++) {
             float x = i * dx;
             float y = j * dx;
-            if (0.4 <= x && x <= 0.7 && 0.4 <= y && y <= 0.7) {
+            if (0.4 <= x && x <= 0.6 && 0.4 <= y && y <= 0.6) {
                 sim.add_particle(Vec2f(x, y));
             }
         }
@@ -167,7 +176,8 @@ void display(void)
 
     if (draw_boundaries) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        draw_circle2d(c0, rad0, 50);
+        //Circle Boundary
+        //draw_circle2d(c0, rad0, 50);
         /*draw_circle2d(c1, rad1, 50);
         draw_circle2d(c2, rad2, 50);
         draw_circle2d(c3, rad3, 50);
@@ -189,7 +199,7 @@ void display(void)
           //cout << "Vel x: " << sim.get_velocity(pos)[0] << "Vel y:" << sim.get_velocity(pos)[1] << endl;
        }
     }*/
-
+   
     //draw_velocity();
     /*glPointSize(5.0);
     glBegin(GL_POINTS);
@@ -217,6 +227,7 @@ void display(void)
 
     //Bunny Boundary
     draw_BC();
+    draw_nodal_solid_phi();
 }
 
 void mouse(int button, int state, int x, int y)
