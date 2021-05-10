@@ -55,15 +55,12 @@ void FluidSim::set_boundary(float (*phi)(const Vec2f&)) {
 //The main fluid simulation step
 void FluidSim::advance(float dt) {
    
-   std::cout << "Advect\n";
    //Passively advect particles
    advect_particles(dt);
 
    //Advance the velocity
    advect(dt);
-   add_force(dt);
-   
-   std::cout << "Project\n";
+   // add_force(dt);
    project(dt);
    vor = curl_2D(u, v, ni, nj, dx);
     
@@ -235,19 +232,20 @@ void FluidSim::compute_weights() {
 
 //An implementation of the variational pressure projection solve for static geometry
 void FluidSim::solve_pressure(float dt) {
-   
-   //This linear system could be simplified, but I've left it as is for clarity 
-   //and consistency with the standard naive discretization
-   
-   int ni = v.ni;
-   int nj = u.nj;
-   int system_size = ni*nj;
-   if(rhs.size() != system_size) {
-      rhs.resize(system_size);
-      pressure.resize(system_size);
-      matrix.resize(system_size);
-   }
-   matrix.zero();
+
+    //This linear system could be simplified, but I've left it as is for clarity 
+    //and consistency with the standard naive discretization
+
+    int ni = v.ni;
+    int nj = u.nj;
+    int system_size = ni * nj;
+    if (rhs.size() != system_size) {
+        rhs.resize(system_size);
+        pressure.resize(system_size);
+        matrix.resize(system_size);
+    }
+    matrix.zero();
+
    
    //Build the linear system for pressure
    for(int j = 1; j < nj-1; ++j) {

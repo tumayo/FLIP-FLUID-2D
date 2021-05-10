@@ -102,8 +102,8 @@ void draw_velocity() {
 }
 
 void draw_nodal_solid_phi() {
-    for (int i = 0; i < sim.ni; i++) {
-        for (int j = 0; j < sim.nj; j++) {
+    for (int i = 0; i < sim.ni + 1; i++) {
+        for (int j = 0; j < sim.nj + 1; j++) {
             glBegin(GL_POINTS);
             if (sim.nodal_solid_phi(i, j) < 0)
                 glColor3f(1, 1, 0);
