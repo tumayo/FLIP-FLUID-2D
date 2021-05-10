@@ -6,6 +6,7 @@
 #include "vec.h"
 #include "vorticity.h"
 #include "util.h"
+#include "array2_utils.h"
 
 using namespace std;
 
@@ -82,11 +83,11 @@ public:
 				// first stage of Runge-Kutta 2 (do a half Euler step)
 				float x_pos = x(p_i, p_j) / dx;
 				float y_pos = y(p_i, p_j) / dx - 0.5;
-				gu[0] = interpolate_value(Vec2f(x_pos, y_pos), grid_u, ni, nj);
+				gu[0] = interpolate_value(Vec2f(x_pos, y_pos), grid_u);// , ni, nj);
 
 				x_pos = x(p_i, p_j) / dx - 0.5;
 				y_pos = y(p_i, p_j) / dx;
-				gu[1] = interpolate_value(Vec2f(x_pos, y_pos), grid_v, ni, nj);
+				gu[1] = interpolate_value(Vec2f(x_pos, y_pos), grid_v);// , ni, nj);
 				
 				midx[0] = x(p_i, p_j) + 0.5 * dt * gu[0];
 				midx[1] = y(p_i, p_j) + 0.5 * dt * gu[1];
@@ -97,11 +98,11 @@ public:
 				// second stage of Runge-Kutta 2
 				x_pos = midx[0] / dx;
 				y_pos = midx[1] / dx - 0.5;
-				gu[0] = interpolate_value(Vec2f(x_pos, y_pos), grid_u, ni, nj);
+				gu[0] = interpolate_value(Vec2f(x_pos, y_pos), grid_u);// , ni, nj);
 
 				x_pos = midx[0] / dx - 0.5;
 				y_pos = midx[1] / dx;
-				gu[1] = interpolate_value(Vec2f(x_pos, y_pos), grid_v, ni, nj);
+				gu[1] = interpolate_value(Vec2f(x_pos, y_pos), grid_v);// , ni, nj);
 
 				x(p_i, p_j) += dt * gu[0];
 				y(p_i, p_j) += dt * gu[1];
@@ -119,11 +120,11 @@ public:
 
 				float x_pos = x(p_i, p_j) / dx;
 				float y_pos = y(p_i, p_j) / dx - 0.5;
-				u(p_i, p_j) += interpolate_value(Vec2f(x_pos, y_pos), grid_du, ni, nj);
+				u(p_i, p_j) += interpolate_value(Vec2f(x_pos, y_pos), grid_du);// , ni, nj);
 
 				x_pos = x(p_i, p_j) / dx - 0.5;
 				y_pos = y(p_i, p_j) / dx;
-				v(p_i, p_j) += interpolate_value(Vec2f(x_pos, y_pos), grid_dv, ni, nj);
+				v(p_i, p_j) += interpolate_value(Vec2f(x_pos, y_pos), grid_dv);// , ni, nj);
 
 				// What happens inside interpolate_value -> get_barycentric & bilerp
 				
@@ -170,7 +171,7 @@ private:
 		sum(i + 1, j + 1) += weight;
 		
 	}
-	Vec2f interpolate_value(const Vec2f &point, const Array2f &grid, int ni, int nj) {
+	/*Vec2f interpolate_value(const Vec2f &point, const Array2f &grid, int ni, int nj) {
 		int i, j;
 		float fx, fy;
 
@@ -181,7 +182,7 @@ private:
 			grid(i, j), grid(i + 1, j),
 			grid(i, j + 1), grid(i + 1, j + 1),
 			fx, fy);
-	}
+	}*/
 };
 
 #endif
