@@ -141,7 +141,10 @@ int main(int argc, char** argv)
     BC_construct();
     Vec2f origin = Vec2f(0.0, 0.0);
     make_level_set2(BC_edges, BC_vertices, origin, sim.dx, sim.ni+1 , sim.nj+1, sim.nodal_solid_phi);
-   
+    for (int i = 0; i < sim.nodal_solid_phi.a.size(); ++i)
+       sim.nodal_solid_phi.a[i] = -sim.nodal_solid_phi.a[i];
+
+
     /*for(int i = 0; i < sqr(grid_resolution); ++i) {
        float x = randhashf(i*2, 0,1);
        float y = randhashf(i*2+1, 0,1);
@@ -155,9 +158,9 @@ int main(int argc, char** argv)
         for (int j = 0; j < grid_resolution + 1; j++) {
             float x = i * dx;
             float y = j * dx;
-            if (0.4 <= x && x <= 0.6 && 0.4 <= y && y <= 0.6) {
+            if(interpolate_value(Vec2f(x,y) / dx, sim.nodal_solid_phi) > 0)
                 sim.add_particle(Vec2f(x, y));
-            }
+            
         }
     }
     Gluvi::run();
@@ -263,6 +266,7 @@ void key_func(unsigned char key, int x, int y) {
 void timer(int junk)
 {
     if (start) {
+       std::cout << "Running\n";
         //sim.advance(timestep);
         sim.flip_adv_advance(timestep);
 
