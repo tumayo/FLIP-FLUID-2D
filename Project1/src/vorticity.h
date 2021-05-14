@@ -20,7 +20,7 @@ Array2f gamma_init(float dx, int ni, int nj) {
 			float x = i * dx;
 			float y = j * dx;
 			if (0.4f <= x && x <= 0.6f && 0.4f <= y && y <= 0.6f) {
-				gamma(i, j) = 2.0f * (y - x);
+				gamma(i, j) = 5.0f * (y - x);
 			}
 			else
 				gamma(i, j) = 0;

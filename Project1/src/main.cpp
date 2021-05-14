@@ -25,7 +25,7 @@ using namespace std;
 
 //Try changing the grid resolution
 int grid_resolution = 50;
-float timestep = 0.001f;
+float timestep = 0.001f; 
 int pause_btw_frames_in_ms = 10;
 char img_file_path[]{ "C:/output/" };
 
@@ -60,6 +60,10 @@ vector<Vec2ui> BC_edges(num_points, 0); //list of edges in the bunny boundary
 void BC_construct(void);
 void draw_BC();
 
+//Tumay -- Box Boundary Construct
+void Box_BC_construct(float dx);
+vector<Vec2f> Box_BC_vertices(4, 0); 
+vector<Vec2ui> Box_BC_edges(4, 0);
 
 //Boundary definition - several circles in a circular domain.
 
@@ -105,11 +109,10 @@ void draw_nodal_solid_phi() {
     for (int i = 0; i < sim.ni + 1; i++) {
         for (int j = 0; j < sim.nj + 1; j++) {
             glBegin(GL_POINTS);
-            if (sim.nodal_solid_phi(i, j) < 0)
+            if (sim.nodal_solid_phi(i, j) < 0) {
                 glColor3f(1, 1, 0);
-            else
-                glColor3f(1, 0, 0);
-            glVertex2f(i*sim.dx, j*sim.dx);
+                glVertex2f(i * sim.dx, j * sim.dx);
+            }
             glEnd();
         }
     }
@@ -137,13 +140,20 @@ int main(int argc, char** argv)
     //Existing Circle Boundary
     //sim.set_boundary(boundary_phi);
 
+    Box_BC_construct(sim.dx);
+    Vec2f origin = Vec2f(0.0, 0.0);
+    make_level_set2(Box_BC_edges, Box_BC_vertices, origin, sim.dx, sim.ni + 1, sim.nj + 1, sim.nodal_solid_phi);
+    for (int i = 0; i < sim.nodal_solid_phi.a.size(); ++i)
+        sim.nodal_solid_phi.a[i] = -sim.nodal_solid_phi.a[i];
+    
+
     //Tumay -- Bunny Boundary
-    BC_construct();
+    /*BC_construct();
     Vec2f origin = Vec2f(0.0, 0.0);
     make_level_set2(BC_edges, BC_vertices, origin, sim.dx, sim.ni+1 , sim.nj+1, sim.nodal_solid_phi);
     for (int i = 0; i < sim.nodal_solid_phi.a.size(); ++i)
        sim.nodal_solid_phi.a[i] = -sim.nodal_solid_phi.a[i];
-
+    */
 
     /*for(int i = 0; i < sqr(grid_resolution); ++i) {
        float x = randhashf(i*2, 0,1);
@@ -154,11 +164,13 @@ int main(int argc, char** argv)
     }*/
 
     float dx = grid_width / (float)grid_resolution;
-    for (int i = 0; i < grid_resolution + 1; i++) {
-        for (int j = 0; j < grid_resolution + 1; j++) {
-            float x = i * dx;
-            float y = j * dx;
-            if(interpolate_value(Vec2f(x,y) / dx, sim.nodal_solid_phi) > 0)
+    for (int i = 0; i < grid_resolution*2 + 1; i++) {
+        for (int j = 0; j < grid_resolution*2 + 1; j++) {
+            float x = i * dx/2;
+            float y = j * dx/2;
+            /*if(interpolate_value(Vec2f(x,y) / dx, sim.nodal_solid_phi) > 0)
+                sim.add_particle(Vec2f(x, y));*/
+            if (0.4f <= x && x <= 0.6f && 0.4f <= y && y <= 0.6f)
                 sim.add_particle(Vec2f(x, y));
             
         }
@@ -174,7 +186,7 @@ void display(void)
     if (draw_grid) {
         glColor3f(0, 0, 0);
         glLineWidth(1);
-        //draw_grid2d(Vec2f(0,0), sim.dx, sim.ni, sim.nj);  
+        draw_grid2d(Vec2f(0,0), sim.dx, sim.ni, sim.nj);  
     }
 
     if (draw_boundaries) {
@@ -188,13 +200,13 @@ void display(void)
         //There's a bug, so draw one more(?)
         draw_circle2d(c3, 0, 10);*/
     }
-
+    
     if (draw_particles) {
         glColor3f(0, 0, 0);
         glPointSize(3);
         draw_points2d(sim.particles);
     }
-
+  
     /*if(draw_velocities) {
        for(int j = 0;j < sim.nj; ++j) for(int i = 0; i < sim.ni; ++i) {
           Vec2f pos((i+0.5f)*sim.dx,(j+0.5f)*sim.dx);
@@ -204,6 +216,7 @@ void display(void)
     }*/
    
     //draw_velocity();
+
     /*glPointSize(5.0);
     glBegin(GL_POINTS);
     for (int i = 0; i <= sim.ni; i++) {
@@ -229,7 +242,7 @@ void display(void)
     glEnd();*/
 
     //Bunny Boundary
-    draw_BC();
+    //draw_BC();
     draw_nodal_solid_phi();
 }
 
@@ -267,8 +280,8 @@ void timer(int junk)
 {
     if (start) {
        std::cout << "Running\n";
-        //sim.advance(timestep);
-        sim.flip_adv_advance(timestep);
+        sim.advance(timestep);
+        //sim.flip_adv_advance(timestep);
 
 #ifdef MAKE_MOVIE
         static int frame = 0;
@@ -276,10 +289,8 @@ void timer(int junk)
 
         char* sgifileformat;
         sgifileformat = new char[strlen(img_file_path) + 50];
-
         sprintf(sgifileformat, "%s/screenshot%%04d.sgi", img_file_path);
         Gluvi::sgi_screenshot(sgifileformat, frame);
-
         delete[] sgifileformat;
 #endif
 
@@ -321,6 +332,21 @@ static void draw_BC(void)
         glVertex2f(BC_vertices[(i + 1) % num_points][0], BC_vertices[(i + 1) % num_points][1]);
     }
     glEnd();
+}
+
+static void Box_BC_construct(float dx) {
+    //Starting the boundary cells 2 grid cells inside the edge cells.
+    dx = 2 * dx;
+    Box_BC_vertices[0] = Vec2f(0.0f + dx, 0.0f + dx);
+    Box_BC_vertices[1] = Vec2f(0.0f + dx, 1.0f - dx);
+    Box_BC_vertices[2] = Vec2f(1.0f - dx, 1.0f - dx);
+    Box_BC_vertices[3] = Vec2f(1.0f - dx, 0.0f + dx);
+
+    Box_BC_edges[0] = Vec2ui(0, 1);
+    Box_BC_edges[1] = Vec2ui(1, 2);
+    Box_BC_edges[2] = Vec2ui(2, 3);
+    Box_BC_edges[3] = Vec2ui(3, 0);
+
 }
 
 

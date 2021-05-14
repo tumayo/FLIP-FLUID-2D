@@ -83,11 +83,11 @@ public:
 				// first stage of Runge-Kutta 2 (do a half Euler step)
 				float x_pos = x(p_i, p_j) / dx;
 				float y_pos = y(p_i, p_j) / dx - 0.5;
-				gu[0] = interpolate_value(Vec2f(x_pos, y_pos), grid_u);// , ni, nj);
+				gu[0] = interpolate_value(Vec2f(x_pos, y_pos), grid_u);
 
 				x_pos = x(p_i, p_j) / dx - 0.5;
 				y_pos = y(p_i, p_j) / dx;
-				gu[1] = interpolate_value(Vec2f(x_pos, y_pos), grid_v);// , ni, nj);
+				gu[1] = interpolate_value(Vec2f(x_pos, y_pos), grid_v);
 				
 				midx[0] = x(p_i, p_j) + 0.5 * dt * gu[0];
 				midx[1] = y(p_i, p_j) + 0.5 * dt * gu[1];
@@ -98,17 +98,17 @@ public:
 				// second stage of Runge-Kutta 2
 				x_pos = midx[0] / dx;
 				y_pos = midx[1] / dx - 0.5;
-				gu[0] = interpolate_value(Vec2f(x_pos, y_pos), grid_u);// , ni, nj);
+				gu[0] = interpolate_value(Vec2f(x_pos, y_pos), grid_u);
 
 				x_pos = midx[0] / dx - 0.5;
 				y_pos = midx[1] / dx;
-				gu[1] = interpolate_value(Vec2f(x_pos, y_pos), grid_v);// , ni, nj);
+				gu[1] = interpolate_value(Vec2f(x_pos, y_pos), grid_v);
 
 				x(p_i, p_j) += dt * gu[0];
 				y(p_i, p_j) += dt * gu[1];
 
 				x(p_i, p_j) = clamp(x(p_i, p_j), 0.0f, xmax);
-				y(p_i, p_j) = clamp(y(p_i, p_j), 0.0f, ymax);
+				y(p_i, p_j) = clamp(y(p_i, p_j), 0.0f, ymax);			
 			}
 		}
 	}
@@ -120,11 +120,11 @@ public:
 
 				float x_pos = x(p_i, p_j) / dx;
 				float y_pos = y(p_i, p_j) / dx - 0.5;
-				u(p_i, p_j) += interpolate_value(Vec2f(x_pos, y_pos), grid_du);// , ni, nj);
+				u(p_i, p_j) += interpolate_value(Vec2f(x_pos, y_pos), grid_du);
 
 				x_pos = x(p_i, p_j) / dx - 0.5;
 				y_pos = y(p_i, p_j) / dx;
-				v(p_i, p_j) += interpolate_value(Vec2f(x_pos, y_pos), grid_dv);// , ni, nj);
+				v(p_i, p_j) += interpolate_value(Vec2f(x_pos, y_pos), grid_dv);
 
 				// What happens inside interpolate_value -> get_barycentric & bilerp
 				
