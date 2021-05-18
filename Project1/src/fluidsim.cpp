@@ -249,38 +249,43 @@ void FluidSim::solve_pressure(float dt) {
     matrix.zero();
 
    
-   //Build the linear system for pressure
-    for(int j = 1; j < nj-1; ++j) {
-       for (int i = 1; i < ni-1; ++i) {
-         int index = i + ni*j;
-         rhs[index] = 0;
+	 //Build the linear system for pressure
+	 for (int j = 0; j < nj; ++j) {
+		 for (int i = 0; i < ni; ++i) {
+			 int index = i + ni * j;
+			 rhs[index] = 0;
 
-         float term;
-             //right neighbour
-             term = u_weights(i + 1, j) * dt / sqr(dx);
-             matrix.add_to_element(index, index, term);
-             matrix.add_to_element(index, index + 1, -term);
-             rhs[index] -= u_weights(i + 1, j) * u(i + 1, j) / dx;
-         
-             //left neighbour
-             term = u_weights(i, j) * dt / sqr(dx);
-             matrix.add_to_element(index, index, term);
-             matrix.add_to_element(index, index - 1, -term);
-             rhs[index] += u_weights(i, j) * u(i, j) / dx;
-
-             //top neighbour
-             term = v_weights(i, j + 1) * dt / sqr(dx);
-             matrix.add_to_element(index, index, term);
-             matrix.add_to_element(index, index + ni, -term);
-             rhs[index] -= v_weights(i, j + 1) * v(i, j + 1) / dx;
-         
-             //bottom neighbour
-             term = v_weights(i, j) * dt / sqr(dx);
-             matrix.add_to_element(index, index, term);
-             matrix.add_to_element(index, index - ni, -term);
-             rhs[index] += v_weights(i, j) * v(i, j) / dx;
-      }
-   }
+			 float term;
+			 //right neighbour
+			 if (i < ni - 1) {
+				 term = u_weights(i + 1, j) * dt / sqr(dx);
+				 matrix.add_to_element(index, index, term);
+				 matrix.add_to_element(index, index + 1, -term);
+				 rhs[index] -= u_weights(i + 1, j) * u(i + 1, j) / dx;
+			 }
+			 if (i > 0) {
+				 //left neighbour
+				 term = u_weights(i, j) * dt / sqr(dx);
+				 matrix.add_to_element(index, index, term);
+				 matrix.add_to_element(index, index - 1, -term);
+				 rhs[index] += u_weights(i, j) * u(i, j) / dx;
+			 }
+			 if (j < nj - 1) {
+				 //top neighbour
+				 term = v_weights(i, j + 1) * dt / sqr(dx);
+				 matrix.add_to_element(index, index, term);
+				 matrix.add_to_element(index, index + ni, -term);
+				 rhs[index] -= v_weights(i, j + 1) * v(i, j + 1) / dx;
+			 }
+			 if (j > 0) {
+				 //bottom neighbour
+				 term = v_weights(i, j) * dt / sqr(dx);
+				 matrix.add_to_element(index, index, term);
+				 matrix.add_to_element(index, index - ni, -term);
+				 rhs[index] += v_weights(i, j) * v(i, j) / dx;
+			 }
+		 }
+	 }
 
    //Solve the system using Robert Bridson's incomplete Cholesky PCG solver
    
@@ -291,14 +296,14 @@ void FluidSim::solve_pressure(float dt) {
       printf("WARNING: Pressure solve failed!\n");
    
    //Apply the velocity update
-   for(int j = 0; j < u.nj; ++j) for(int i = 0; i < u.ni; ++i) {
+   for(int j = 0; j < nj; ++j) for(int i = 0; i < ni+1; ++i) {
       int index = i + j*ni;
       if(u_weights(i,j) > 0 && i != 0 && i != ni)
          u(i,j) -= dt  * (float)(pressure[index] - pressure[index-1]) / dx; 
       else
          u(i,j) = 0;
    }
-   for(int j = 0; j < v.nj; ++j) for(int i = 0; i < v.ni; ++i) {
+   for(int j = 0; j < nj+1; ++j) for(int i = 0; i < ni; ++i) {
       int index = i + j*ni;
       if(v_weights(i,j) > 0 && j != 0 && j != nj)
          v(i,j) -= dt  * (float)(pressure[index] - pressure[index-ni]) / dx; 
