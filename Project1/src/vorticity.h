@@ -19,7 +19,7 @@ Array2f gamma_init(float dx, int ni, int nj) {
 		for (int j = 0; j < nj; j++) {
 			float x = i * dx;
 			float y = j * dx;
-			if (0.4f <= x && x <= 0.8f && 0.4f <= y && y <= 0.8f) {
+			if (0.2f <= x && x <= 0.6f && 0.2f <= y && y <= 0.6f) {
 				gamma(i, j) = 10.0f * (y - x);
 			}
 			else
@@ -41,14 +41,20 @@ Vec2f biot_savart(float dx, int ni, int nj, Vec2f pos, Array2f vor) {
  	for (int i = 0; i < ni; i++) {
 		for (int j = 0; j < nj; j++) {
 			Vec2f diff = pos - Vec2f(i * dx, j * dx);
-			diff[1] = -diff[1];
  			float distance = sqrt(pow(diff[0], 2) + pow(diff[1], 2));
 			if (distance != 0) {
-				vel -= diff * vor(i, j) * q_function(distance / SIGMA) / sqr(distance);
+				// Particle Biot-Savart Method
+				//diff[1] = -diff[1];
+				//vel -= diff * vor(i, j) * q_function(distance / SIGMA) / sqr(distance);
+
+				//  MC Fluids Biot-Savart Method
+				vel -= Vec2f(-diff[1], diff[0]) * vor(i, j) / sqr(distance);
+				
 			}
 		}
 	}
-	return vel;
+	//return vel;
+	return  vel / (ni * nj * 2.0f * PI);
 }
 
 Array2f vor_inversion_u(float dx, int ni, int nj, Array2f vor) {

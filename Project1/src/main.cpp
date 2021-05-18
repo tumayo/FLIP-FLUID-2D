@@ -26,7 +26,7 @@ using namespace std;
 
 //Try changing the grid resolution
 int grid_resolution = 40;
-float timestep = 0.001f; 
+float timestep = 0.05f; 
 int pause_btw_frames_in_ms = 10;
 char img_file_path[]{ "C:/output/" };
 
@@ -141,7 +141,7 @@ int main(int argc, char** argv)
     //Existing Circle Boundary
     //sim.set_boundary(boundary_phi);
 
-   /* Box_BC_construct(sim.dx);
+   /*Box_BC_construct(sim.dx);
     Vec2f origin = Vec2f(0.0, 0.0);
     make_level_set2(Box_BC_edges, Box_BC_vertices, origin, sim.dx, sim.ni + 1, sim.nj + 1, sim.nodal_solid_phi);
     for (int i = 0; i < sim.nodal_solid_phi.a.size(); ++i)
@@ -173,7 +173,7 @@ int main(int argc, char** argv)
             float y = j * dx/2;
             /*if(interpolate_value(Vec2f(x,y) / dx, sim.nodal_solid_phi) > 0)
                 sim.add_particle(Vec2f(x, y));*/
-            if (0.4f <= x && x <= 0.8f && 0.4f <= y && y <= 0.8f)
+            if (0.2f <= x && x <= 0.6f && 0.2f <= y && y <= 0.6f)
                 sim.add_particle(Vec2f(x, y));
             
         }
@@ -186,12 +186,6 @@ int main(int argc, char** argv)
 
 void display(void)
 {
-    if (draw_grid) {
-        glColor3f(0, 0, 0);
-        glLineWidth(1);
-        draw_grid2d(Vec2f(0,0), sim.dx, sim.ni, sim.nj);  
-    }
-
     if (draw_boundaries) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         //Circle Boundary
@@ -211,23 +205,34 @@ void display(void)
     }*/
 
     //Particles with interpolated vorticities
+    glPointSize(5.0f);
     glBegin(GL_POINTS);
     for (int i = 0; i < sim.particles.size(); ++i) {
         Vec2f particle_pos = sim.particles[i].v;
         float vor_value = interpolate_value(particle_pos / sim.dx, sim.vor);
 
-        /*// normalize the vorticity bewteen 0 and 1 ( < 0.5 now correspond to negative value)
+        // side of the initial square length
+        float side = 0.4f;
+        // scale of the vorticity field
+        float strength = 10.0f;
+        // Max value of the vorticity on the square, for color normalization
+        float norm_factor = strength * sqrt(2 * (side) * (side));
+
+        // normalize the vorticity bewteen 0 and 1 ( < 0.5 now correspond to negative value)
         float vort_norm = 0.5f * (vor_value / norm_factor + 1.0f);
         // 1.0f - vort_norm because I mistakenly switch the colors in my simulation
         Colorf color = clamp(ramp(PortalW, 1.0f - vort_norm));
         // give to Opengl, alpha can be wathever you want
         glColor4f(color.r, color.g, color.b, 0.5);
-        glVertex2f(particles[i].pos.x, particles[i].pos.y);*/
-
-
         glVertex2fv(sim.particles[i].v);
     }
     glEnd();
+
+    if (draw_grid) {
+        glColor3f(0, 0, 0);
+        glLineWidth(1);
+        draw_grid2d(Vec2f(0, 0), sim.dx, sim.ni, sim.nj);
+    }
   
     /*if(draw_velocities) {
        for(int j = 0;j < sim.nj; ++j) for(int i = 0; i < sim.ni; ++i) {
