@@ -69,7 +69,7 @@ Array2f vor_inversion_v(float dx, int ni, int nj, Array2f vor) {
 	u.set_zero();
 	for (int i = 0; i < ni; i++) {
 		for (int j = 0; j < nj; j++) {
-			u(i, j) = biot_savart(dx, ni, nj, Vec2f((i - 0.5f ) * dx , j * dx), vor)[1];
+			u(i, j) = biot_savart(dx, ni, nj, Vec2f((i - 0.5f) * dx , j * dx), vor)[1];
 		}
 	}
 	return u;
@@ -97,7 +97,7 @@ Array2f curl_2D(Array2f u, Array2f v, int ni, int nj, float dx) {
 			}
 
 			if (j == 0) {
-				du_dy = (u(i, j + 1) - u(i, j)) / dx * 0.5;
+				du_dy = (u(i, j + 1) - u(i, j)) / dx;
 			}
 			else if (j == nj - 1) {
 				du_dy = (0 - u(i, j)) / dx;

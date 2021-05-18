@@ -27,6 +27,9 @@
     <ClInclude Include="src\makelevelset2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\colorf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">

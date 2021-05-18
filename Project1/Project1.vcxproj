@@ -148,6 +148,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\colorf.h" />
     <ClInclude Include="src\makelevelset2.h" />
     <ClInclude Include="src\particles.h" />
     <ClInclude Include="src\vorticity.h" />
