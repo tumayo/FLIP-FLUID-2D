@@ -19,8 +19,8 @@ Array2f gamma_init(float dx, int ni, int nj) {
 		for (int j = 0; j < nj; j++) {
 			float x = i * dx;
 			float y = j * dx;
-			if (0.4f <= x && x <= 0.6f && 0.4f <= y && y <= 0.6f) {
-				gamma(i, j) = 5.0f * (y - x);
+			if (0.4f <= x && x <= 0.8f && 0.4f <= y && y <= 0.8f) {
+				gamma(i, j) = 10.0f * (y - x);
 			}
 			else
 				gamma(i, j) = 0;

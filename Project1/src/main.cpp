@@ -11,6 +11,7 @@
 #include "fluidsim.h"
 #include "openglutils.h"
 #include "array2_utils.h"
+#include "colorf.h"
 
 #include "fluidsim.cpp"
 #include "gluvi.cpp"
@@ -24,7 +25,7 @@
 using namespace std;
 
 //Try changing the grid resolution
-int grid_resolution = 30;
+int grid_resolution = 40;
 float timestep = 0.001f; 
 int pause_btw_frames_in_ms = 10;
 char img_file_path[]{ "C:/output/" };
@@ -170,7 +171,7 @@ int main(int argc, char** argv)
             float y = j * dx/2;
             /*if(interpolate_value(Vec2f(x,y) / dx, sim.nodal_solid_phi) > 0)
                 sim.add_particle(Vec2f(x, y));*/
-            if (0.4f <= x && x <= 0.6f && 0.4f <= y && y <= 0.6f)
+            if (0.4f <= x && x <= 0.8f && 0.4f <= y && y <= 0.8f)
                 sim.add_particle(Vec2f(x, y));
             
         }
@@ -201,11 +202,30 @@ void display(void)
         draw_circle2d(c3, 0, 10);*/
     }
     
-    if (draw_particles) {
+    /*if (draw_particles) {
         glColor3f(0, 0, 0);
         glPointSize(3);
         draw_points2d(sim.particles);
+    }*/
+
+    //Particles with interpolated vorticities
+    glBegin(GL_POINTS);
+    for (int i = 0; i < sim.particles.size(); ++i) {
+        Vec2f particle_pos = sim.particles[i].v;
+        float vor_value = interpolate_value(particle_pos / sim.dx, sim.vor);
+
+        /*// normalize the vorticity bewteen 0 and 1 ( < 0.5 now correspond to negative value)
+        float vort_norm = 0.5f * (vor_value / norm_factor + 1.0f);
+        // 1.0f - vort_norm because I mistakenly switch the colors in my simulation
+        Colorf color = clamp(ramp(PortalW, 1.0f - vort_norm));
+        // give to Opengl, alpha can be wathever you want
+        glColor4f(color.r, color.g, color.b, 0.5);
+        glVertex2f(particles[i].pos.x, particles[i].pos.y);*/
+
+
+        glVertex2fv(sim.particles[i].v);
     }
+    glEnd();
   
     /*if(draw_velocities) {
        for(int j = 0;j < sim.nj; ++j) for(int i = 0; i < sim.ni; ++i) {
@@ -243,7 +263,7 @@ void display(void)
 
     //Bunny Boundary
     //draw_BC();
-    draw_nodal_solid_phi();
+    //draw_nodal_solid_phi();
 }
 
 void mouse(int button, int state, int x, int y)
