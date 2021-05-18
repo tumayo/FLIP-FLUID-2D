@@ -36,7 +36,7 @@ bool draw_particles = true;
 bool draw_velocities = true;
 bool draw_boundaries = true;
 
-float grid_width = 1;
+float grid_width = 1 + 4 * 1 / grid_resolution;
 int start = 0;
 
 FluidSim sim;
@@ -141,22 +141,22 @@ int main(int argc, char** argv)
     //Existing Circle Boundary
     //sim.set_boundary(boundary_phi);
 
-   /*Box_BC_construct(sim.dx);
+   Box_BC_construct(sim.dx);
     Vec2f origin = Vec2f(0.0, 0.0);
     make_level_set2(Box_BC_edges, Box_BC_vertices, origin, sim.dx, sim.ni + 1, sim.nj + 1, sim.nodal_solid_phi);
     for (int i = 0; i < sim.nodal_solid_phi.a.size(); ++i)
-        sim.nodal_solid_phi.a[i] = -sim.nodal_solid_phi.a[i];*/
+        sim.nodal_solid_phi.a[i] = -sim.nodal_solid_phi.a[i];
     
     //revert to no boundaries
-    sim.nodal_solid_phi.assign(+1);
+    //sim.nodal_solid_phi.assign(+1);
 
     //Tumay -- Bunny Boundary
     /*BC_construct();
     Vec2f origin = Vec2f(0.0, 0.0);
     make_level_set2(BC_edges, BC_vertices, origin, sim.dx, sim.ni+1 , sim.nj+1, sim.nodal_solid_phi);
     for (int i = 0; i < sim.nodal_solid_phi.a.size(); ++i)
-       sim.nodal_solid_phi.a[i] = -sim.nodal_solid_phi.a[i];
-    */
+       sim.nodal_solid_phi.a[i] = -sim.nodal_solid_phi.a[i];*/
+    
 
     /*for(int i = 0; i < sqr(grid_resolution); ++i) {
        float x = randhashf(i*2, 0,1);
@@ -307,8 +307,8 @@ void timer(int junk)
 {
     if (start) {
        std::cout << "Running\n";
-        sim.advance(timestep);
-        //sim.flip_adv_advance(timestep);
+        //sim.advance(timestep);
+        sim.flip_adv_advance(timestep);
 
 #ifdef MAKE_MOVIE
         static int frame = 0;

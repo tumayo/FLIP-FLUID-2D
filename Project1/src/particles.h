@@ -48,7 +48,7 @@ public:
 		sum.set_zero();
 		for (int p_i = 0; p_i < sqrt(num_particles); ++p_i) {
 			for (int p_j = 0; p_j < sqrt(num_particles); ++p_j) {
-
+	
 				get_barycentric(x(p_i, p_j) / dx, i, fx, 0, ni);
 				get_barycentric(y(p_i, p_j) / dx - 0.5f, j, fy, 0, nj);
 				accumulate(grid_u, u(p_i, p_j), i, j, fx, fy);
@@ -60,7 +60,6 @@ public:
 					grid_u(i, j) /= sum(i, j);
 			}
 		}
-
 		sum.set_zero();
 		for (int p_i = 0; p_i < sqrt(num_particles); ++p_i) {
 			for (int p_j = 0; p_j < sqrt(num_particles); ++p_j) {
