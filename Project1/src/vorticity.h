@@ -57,7 +57,7 @@ Array2f vor_inversion_u(float dx, int ni, int nj, Array2f vor) {
 	u.set_zero();
 	for (int i = 0; i < ni; i++) {
 		for (int j = 0; j < nj; j++) {
-			u(i, j) = biot_savart(dx, ni, nj, Vec2f(i * dx, j * dx), vor)[0];
+			u(i, j) = biot_savart(dx, ni, nj, Vec2f(i * dx, (j - 0.5f) * dx), vor)[0];
 		}
 	}
 	return u;
@@ -69,7 +69,7 @@ Array2f vor_inversion_v(float dx, int ni, int nj, Array2f vor) {
 	u.set_zero();
 	for (int i = 0; i < ni; i++) {
 		for (int j = 0; j < nj; j++) {
-			u(i, j) = biot_savart(dx, ni, nj, Vec2f(i * dx, j * dx), vor)[1];
+			u(i, j) = biot_savart(dx, ni, nj, Vec2f((i - 0.5f ) * dx , j * dx), vor)[1];
 		}
 	}
 	return u;
@@ -83,26 +83,27 @@ Array2f curl_2D(Array2f u, Array2f v, int ni, int nj, float dx) {
 		for (int j = 0; j < nj; j++) {
 			//curl : dv/dx - du/dy
 			//dv/dx = v(x+dx) - v(x-dx) /2dx
+			//dv/dx = v(x+0.5*dx) - v(x-0.5*dx) /dx
 			float dv_dx = 0;
 			float du_dy = 0;
 			if (i == 0) {
-				dv_dx = (v(i + 1, j) - v(i, j)) / dx * 0.5;
+				dv_dx = (v(i + 1, j) - v(i, j)) / dx;
 			}
 			else if (i == ni - 1) {
-				dv_dx = (0 - v(i, j)) / dx * 0.5;
+				dv_dx = (0 - v(i, j)) / dx;
 			}
 			else {
-				dv_dx = (v(i + 1, j) - v(i, j)) / dx * 0.5;
+				dv_dx = (v(i + 1, j) - v(i, j)) / dx;
 			}
 
 			if (j == 0) {
 				du_dy = (u(i, j + 1) - u(i, j)) / dx * 0.5;
 			}
 			else if (j == nj - 1) {
-				du_dy = (0 - u(i, j)) / dx * 0.5;
+				du_dy = (0 - u(i, j)) / dx;
 			}
 			else {
-				du_dy = (u(i, j + 1) - u(i, j)) / dx * 0.5;
+				du_dy = (u(i, j + 1) - u(i, j)) / dx;
 			}
 
 			vor(i, j) = dv_dx - du_dy;

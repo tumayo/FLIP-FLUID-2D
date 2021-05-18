@@ -24,7 +24,7 @@
 using namespace std;
 
 //Try changing the grid resolution
-int grid_resolution = 50;
+int grid_resolution = 30;
 float timestep = 0.001f; 
 int pause_btw_frames_in_ms = 10;
 char img_file_path[]{ "C:/output/" };
@@ -217,9 +217,9 @@ void display(void)
    
     //draw_velocity();
 
-    /*glPointSize(5.0);
+    glPointSize(5.0);
     glBegin(GL_POINTS);
-    for (int i = 0; i <= sim.ni; i++) {
+    for (int i = 0; i < sim.ni; i++) {
         for (int j = 0; j < sim.nj; j++) {
 
             if (sim.vor(i, j) > 10)
@@ -239,7 +239,7 @@ void display(void)
             glVertex2f(i * sim.dx, j * sim.dx);
         }
     }
-    glEnd();*/
+    glEnd();
 
     //Bunny Boundary
     //draw_BC();
