@@ -52,6 +52,7 @@ Colorf mix(const Colorf& X, const Colorf& Y, const float w) {
 // ramp between colors
 Colorf ramp(const std::vector<Colorf>& Cols, const float t) {
     float t_temp = t * float(Cols.size() - 1);
+    if ((int)t_temp > Cols.size() - 1) t_temp = Cols.size() - 1;
     return mix(Cols[int(t_temp)], Cols[int(t_temp) + 1], smoothstep(0.0f, 1.0f, fract(t_temp)));
 }
 // clamp color components between low and high

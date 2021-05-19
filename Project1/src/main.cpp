@@ -43,7 +43,8 @@ FluidSim sim;
 
 //Gluvi stuff
 //-------------
-Gluvi::PanZoom2D cam(-0.1f, -0.35f, 1.2f);
+//Gluvi::PanZoom2D cam(-0.1f, -0.35f, 1.2f);
+Gluvi::PanZoom2D cam(0.0f, 0.0f, 1);
 double oldmousetime;
 Vec2f oldmouse;
 void display();
@@ -206,7 +207,7 @@ void display(void)
 
     
     //Particles with interpolated vorticities
-    glPointSize(5.0f);
+    glPointSize(6.0f);
     glBegin(GL_POINTS);
     for (int i = 0; i < sim.particles.size(); ++i) {
         Vec2f particle_pos = sim.particles[i].v;
@@ -222,7 +223,7 @@ void display(void)
         // normalize the vorticity between 0 and 1 ( < 0.5 now correspond to negative value)
         float vort_norm = 0.5f * (vor_value / norm_factor + 1.0f);
         // 1.0f - vort_norm because I mistakenly switch the colors in my simulation
-        Colorf color = clamp(ramp(PortalW, clamp(1.0f - vort_norm,0,1)));
+        Colorf color = clamp(ramp(PortalW, clamp(1.0f - vort_norm,0,0.99)));
         // give to Opengl, alpha can be wathever you want
         glColor4f(color.r, color.g, color.b, 0.5);
         glVertex2fv(sim.particles[i].v);
@@ -266,6 +267,27 @@ void display(void)
     //Bunny Boundary
     //draw_BC();
     //draw_nodal_solid_phi();
+
+    glLineWidth(3.0f);
+    glBegin(GL_LINES);
+    glVertex2f(0.0f, 0.0f);
+    glVertex2f(0.0f, 1.0f);
+    glEnd();
+
+    glBegin(GL_LINES);
+    glVertex2f(0.0f, 0.0f);
+    glVertex2f(1.0f, 0.0f);
+    glEnd();
+
+    glBegin(GL_LINES);
+    glVertex2f(1.0f, 0.0f);
+    glVertex2f(1.0f, 1.0f);
+    glEnd();
+
+    glBegin(GL_LINES);
+    glVertex2f(0.0f, 1.0f);
+    glVertex2f(1.0f, 1.0f);
+    glEnd();
 }
 
 void mouse(int button, int state, int x, int y)

@@ -26,16 +26,16 @@ void draw_grid2d(const Vec2f& origin, float dx, int nx, int ny) {
    
    glBegin(GL_LINES);
    for(int i = 0; i <= nx; i++) {
-      Vec2f a(i*dx, 0);
-      Vec2f b(i*dx, height);
-      glVertex2fv((origin+a).v); 
-      glVertex2fv((origin+b).v);
+           Vec2f a(i * dx, 0);
+           Vec2f b(i * dx, height);
+           glVertex2fv((origin + a).v);
+           glVertex2fv((origin + b).v);
    }
    for(int j = 0; j <= ny; ++j) {
-      Vec2f a(0,j*dx);
-      Vec2f b(width,j*dx);
-      glVertex2fv((origin + a).v); 
-      glVertex2fv((origin + b).v);
+           Vec2f a(0, j * dx);
+           Vec2f b(width, j * dx);
+           glVertex2fv((origin + a).v);
+           glVertex2fv((origin + b).v);
    }
    glEnd();
 }

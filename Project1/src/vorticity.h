@@ -47,8 +47,8 @@ Vec2f biot_savart(float dx, int ni, int nj, Vec2f pos, Array2f vor) {
 				//diff[1] = -diff[1];
 				//vel -= diff * vor(i, j) * q_function(distance / SIGMA) / sqr(distance);
 
-				//  MC Fluids Biot-Savart Method
-				vel -= Vec2f(-diff[1], diff[0]) * vor(i, j) / sqr(distance);
+				// MC Fluids Biot-Savart Method
+				vel += Vec2f(diff[1], -diff[0]) * vor(i, j) / sqr(distance);
 				
 			}
 		}
@@ -111,7 +111,7 @@ Array2f curl_2D(Array2f u, Array2f v, int ni, int nj, float dx) {
 				du_dy = (u(i, j) - u(i, j - 1)) / dx;
 			}
 
-			vor(i, j) = dv_dx - du_dy;
+			vor(i, j) = -dv_dx + du_dy;
 		}
 	}
 	return vor;
