@@ -25,7 +25,7 @@
 using namespace std;
 
 //Try changing the grid resolution
-int grid_resolution = 40;
+int grid_resolution = 50;
 float timestep = 0.05f; 
 int pause_btw_frames_in_ms = 10;
 char img_file_path[]{ "C:/output/" };
@@ -33,10 +33,10 @@ char img_file_path[]{ "C:/output/" };
 //Display properties
 bool draw_grid = true;
 bool draw_particles = true;
-bool draw_velocities = true;
+bool draw_velocities = false;
 bool draw_boundaries = true;
 
-float grid_width = 1 + 4 * 1 / grid_resolution;
+float grid_width = 1;
 int start = 0;
 
 FluidSim sim;
@@ -148,7 +148,7 @@ int main(int argc, char** argv)
         sim.nodal_solid_phi.a[i] = -sim.nodal_solid_phi.a[i];
     
     //revert to no boundaries
-    //sim.nodal_solid_phi.assign(+1);
+    sim.nodal_solid_phi.assign(+1);
 
     //Tumay -- Bunny Boundary
     /*BC_construct();
@@ -204,6 +204,7 @@ void display(void)
         draw_points2d(sim.particles);
     }*/
 
+    
     //Particles with interpolated vorticities
     glPointSize(5.0f);
     glBegin(GL_POINTS);
@@ -218,15 +219,32 @@ void display(void)
         // Max value of the vorticity on the square, for color normalization
         float norm_factor = strength * sqrt(2 * (side) * (side));
 
-        // normalize the vorticity bewteen 0 and 1 ( < 0.5 now correspond to negative value)
+        // normalize the vorticity between 0 and 1 ( < 0.5 now correspond to negative value)
         float vort_norm = 0.5f * (vor_value / norm_factor + 1.0f);
         // 1.0f - vort_norm because I mistakenly switch the colors in my simulation
-        Colorf color = clamp(ramp(PortalW, 1.0f - vort_norm));
+        Colorf color = clamp(ramp(PortalW, clamp(1.0f - vort_norm,0,1)));
         // give to Opengl, alpha can be wathever you want
         glColor4f(color.r, color.g, color.b, 0.5);
         glVertex2fv(sim.particles[i].v);
     }
     glEnd();
+    
+
+    /*glPointSize(5.0f);
+    glColor3f(0, 0, 0);
+    glBegin(GL_POINTS);
+    for (int i = 0; i < sim.ni; ++i) for(int j = 0; j < sim.nj; ++j) {
+       glVertex2f(sim.flip_particles.x(i, j), sim.flip_particles.y(i, j));
+    }
+    glEnd();*/
+    
+    glPointSize(5.0f);
+    glColor3f(0, 0, 0);
+    glBegin(GL_POINTS);
+    for (int i = 0; i < sim.flip_particles.particles_pos.size(); ++i)  {
+       //glVertex2fv(sim.flip_particles.particles_pos[i].v);
+    }
+    glEnd(); 
 
     if (draw_grid) {
         glColor3f(0, 0, 0);
@@ -234,39 +252,16 @@ void display(void)
         draw_grid2d(Vec2f(0, 0), sim.dx, sim.ni, sim.nj);
     }
   
-    /*if(draw_velocities) {
+    if(draw_velocities) {
        for(int j = 0;j < sim.nj; ++j) for(int i = 0; i < sim.ni; ++i) {
           Vec2f pos((i+0.5f)*sim.dx,(j+0.5f)*sim.dx);
           draw_arrow2d(pos, pos + 0.01f*sim.get_velocity(pos), 0.1f*sim.dx);
           //cout << "Vel x: " << sim.get_velocity(pos)[0] << "Vel y:" << sim.get_velocity(pos)[1] << endl;
        }
-    }*/
+    }
    
     //draw_velocity();
 
-    /*glPointSize(5.0);
-    glBegin(GL_POINTS);
-    for (int i = 0; i < sim.ni; i++) {
-        for (int j = 0; j < sim.nj; j++) {
-
-            if (sim.vor(i, j) > 10)
-                glColor3f(1, 0, 0);
-            else if (sim.vor(i, j) > 5 && sim.vor(i, j) < 10)
-                glColor3f(0.66, 0, 0);
-            else if (sim.vor(i, j) < 5 && sim.vor(i,j) > 0)
-                glColor3f(0.33, 0, 0);
-            else if (sim.vor(i, j) < -10)
-                glColor3f(0, 0, 1);
-            else if (sim.vor(i, j) > -10 && sim.vor(i, j) < -5)
-                glColor3f(0, 0, 0.66);
-            else if (sim.vor(i, j) < 0 && sim.vor(i, j) > -5)
-                glColor3f(0, 0, 0.33);
-            else
-                glColor3f(0, 1, 0);
-            glVertex2f(i * sim.dx, j * sim.dx);
-        }
-    }
-    glEnd();*/
 
     //Bunny Boundary
     //draw_BC();
