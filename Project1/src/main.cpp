@@ -31,7 +31,7 @@ int pause_btw_frames_in_ms = 10;
 char img_file_path[]{ "C:/output/" };
 
 //Display properties
-bool draw_grid = true;
+bool draw_grid = false;
 bool draw_particles = true;
 bool draw_velocities = false;
 bool draw_boundaries = true;
